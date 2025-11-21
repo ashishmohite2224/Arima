@@ -1,13 +1,12 @@
 # ------------------------------------------------------------
-# ARIMA FORECASTING SCRIPT (FULLY WORKING — NO IMPORT ERRORS)
+# ARIMA FORECASTING SCRIPT (NO YFINANCE VERSION)
 # ------------------------------------------------------------
 
-# AUTO-INSTALL required packages so the script never fails
+# Auto-install dependencies
 import os
-os.system("pip install yfinance pandas numpy matplotlib statsmodels --quiet")
+os.system("pip install pandas numpy matplotlib statsmodels --quiet")
 
-# IMPORT LIBRARIES
-import yfinance as yf
+# Imports
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,38 +15,35 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # ------------------------------------------------------------
-# USER SETTINGS
+# USER INPUT SECTION
 # ------------------------------------------------------------
 
-STOCK = "TVSMOTOR.NS"          # Change to SHRIRAMFIN.NS or any stock
-START = "2010-01-01"
-END   = "2019-01-01"
+CSV_FILE = "stock_data.csv"    # Replace with your actual CSV filename
 FORECAST_MONTHS = 12           # Forecast next 12 months
 
 # ------------------------------------------------------------
-# FETCH DATA
+# LOAD CSV DATA
 # ------------------------------------------------------------
 
-print(f"Downloading stock data for {STOCK}...")
+print(f"Loading CSV file: {CSV_FILE}")
 
-data = yf.download(STOCK, start=START, end=END, interval="1mo", progress=False)
+data = pd.read_csv(CSV_FILE)
 
-if data.empty:
-    print("ERROR: Could not fetch data. Check stock symbol.")
-    exit()
-
+# CSV must contain Date + Close columns
+data["Date"] = pd.to_datetime(data["Date"])
+data = data.set_index("Date")
 prices = data["Close"].dropna()
-prices.index = pd.to_datetime(prices.index)
 
-print("Data downloaded successfully!")
+print("Data loaded successfully!")
+print(prices.head())
 
 # ------------------------------------------------------------
-# GRAPH 1 — Price Trend
+# GRAPH 1 — PRICE TREND
 # ------------------------------------------------------------
 
 plt.figure(figsize=(10,4))
 plt.plot(prices, marker="o")
-plt.title(f"{STOCK} — Monthly Price Trend")
+plt.title("Stock Price Trend")
 plt.xlabel("Date")
 plt.ylabel("Price")
 plt.grid(True)
@@ -62,10 +58,10 @@ print("Training ARIMA(1,1,1) model...")
 model = ARIMA(prices, order=(1,1,1))
 model_fit = model.fit()
 
-print("Model trained successfully!")
+print("Model training complete!")
 
 # ------------------------------------------------------------
-# GRAPH 2 — Overlap Forecast
+# GRAPH 2 — OVERLAP FORECAST
 # ------------------------------------------------------------
 
 forecast_overlap = model_fit.predict(
@@ -84,7 +80,7 @@ plt.grid(True)
 plt.show()
 
 # ------------------------------------------------------------
-# GRAPH 3 — FUTURE FORECAST (NEXT 12 MONTHS)
+# GRAPH 3 — FUTURE FORECAST
 # ------------------------------------------------------------
 
 future_fc = model_fit.forecast(steps=FORECAST_MONTHS)
