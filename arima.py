@@ -1,8 +1,3 @@
-# ------------------------------------------------------------
-# ARIMA FORECASTING SCRIPT (ERROR-FREE VERSION)
-# ------------------------------------------------------------
-
-# AUTO-INSTALL MISSING LIBRARIES
 import os
 os.system("pip install pandas numpy matplotlib statsmodels --quiet")
 
